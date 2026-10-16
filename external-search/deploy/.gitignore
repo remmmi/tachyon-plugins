@@ -1,0 +1,8 @@
+# created by install.sh: never versioned
+.env
+indexer.env
+secrets/
+keys/
+data/
+load_probe-*.csv
+probe.log

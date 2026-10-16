@@ -1,0 +1,52 @@
+# Meilisearch + the IMAP indexer for external-search. Driven by install.sh; see AGENTS.md and docs/footprint.md.
+#
+# Files next to this one (all created by install.sh, none versioned):
+#   .env                 compose settings (ports, limits, user, optional Tachyon network)
+#   indexer.env          IMAP server and index settings (copy of indexer.env.example, filled in)
+#   secrets/meili.env    MEILI_MASTER_KEY=… for the engine          (600)
+#   secrets/meili_master_key   the same key, for the indexer        (600)
+#   secrets/imap_password      the mailbox password                 (600)
+#   keys/search.key, keys/status.key   keys for the plugin settings (600, written by setup_index.py)
+#   data/meili/          the engine's database      data/state/   the indexer's state and status.json
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.54.3
+    restart: unless-stopped
+    environment:
+      MEILI_ENV: production
+      MEILI_NO_ANALYTICS: "true"
+      MEILI_MAX_INDEXING_MEMORY: ${MEILI_MAX_INDEXING_MEMORY:-1GiB}
+      MEILI_MAX_INDEXING_THREADS: ${MEILI_MAX_INDEXING_THREADS:-1}
+    env_file: ./secrets/meili.env
+    volumes: ["./data/meili:/meili_data"]
+    # loopback only: browsers never talk to the engine, the webmail server does
+    ports: ["127.0.0.1:${MEILI_PORT:-7700}:7700"]
+    mem_limit: ${MEILI_MEM_LIMIT:-2g}
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  indexer:
+    image: python:3.13-alpine
+    restart: unless-stopped
+    user: "${RUN_UID:-1000}:${RUN_GID:-1000}"
+    command: ["sh", "/app/run.sh"]
+    env_file: ./indexer.env
+    environment:
+      MEILI_URL: http://meilisearch:7700
+      STATE_DIR: /state
+      KEYS_DIR: /keys
+      IMAP_PASSWORD_FILE: /run/secrets/imap_password
+      MEILI_MASTER_KEY_FILE: /run/secrets/meili_master_key
+      TZ: ${TZ:-UTC}
+      PYTHONDONTWRITEBYTECODE: "1"   # /app is read only
+    volumes:
+      - ./indexer:/app:ro
+      - ./data/state:/state
+      - ./keys:/keys
+      - ./secrets/imap_password:/run/secrets/imap_password:ro
+      - ./secrets/meili_master_key:/run/secrets/meili_master_key:ro
+    depends_on: [meilisearch]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }

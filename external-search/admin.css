@@ -1,0 +1,8 @@
+/* external-search — admin panel: keep the line breaks of the plugin text (description + engine status). The core
+   shows it in the header of every plugin window; other plugins' texts have no line breaks, so this changes nothing
+   for them. */
+#V-PopupsPlugin header > span {
+	display: block;
+	white-space: pre-line;
+	margin-top: 8px;
+}

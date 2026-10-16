@@ -1,0 +1,10 @@
+# Added by install.sh when Tachyon runs in Docker: joins the engine to Tachyon's network, so the plugin reaches it at
+# http://meilisearch:7700. Without it (Tachyon outside Docker), the plugin uses http://127.0.0.1:<MEILI_PORT>.
+services:
+  meilisearch:
+    networks: [default, tachyon]
+
+networks:
+  tachyon:
+    external: true
+    name: ${TACHYON_NETWORK:?TACHYON_NETWORK not set in .env}

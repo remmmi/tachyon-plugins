@@ -1,0 +1,20 @@
+/* external-search — discreet hint, set for 5 s by search.js when the server fell back to the native search. */
+input.inputSearch.external-search-fallback {
+	outline: 1px dashed currentColor;
+	outline-offset: -3px;
+	opacity: .85;
+}
+
+/* order-switch.js — "Newest first | Most relevant first" above a result page in engine order */
+.external-search-order { display: flex; gap: 8px; padding: 10px 16px 8px; }
+.external-search-order button {
+	font-size: 12px; line-height: 20px; padding: 2px 12px; border: 1px solid rgba(128, 128, 128, .45);
+	border-radius: 16px; background: transparent; color: inherit; opacity: .8; cursor: pointer;
+}
+.external-search-order button.active { background: rgba(128, 128, 128, .2); opacity: 1; cursor: default; }
+/* folder of a row in a flat result list */
+.messageListItem .external-search-folder {
+	display: inline-block; flex: 0 0 auto; max-width: 140px; overflow: hidden; text-overflow: ellipsis;
+	font-size: 12px; line-height: 18px; padding: 0 6px; margin: 0 6px 0 0; border-radius: 4px;
+	background-color: rgba(128, 128, 128, .18); white-space: nowrap; align-self: center;
+}
